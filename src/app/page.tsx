@@ -28,24 +28,11 @@ import {
 } from "lucide-react";
 
 export default function Home() {
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [activeHeroTab, setActiveHeroTab] = useState<"interactive" | "render" | "blueprint">("interactive");
   const [promptPreset, setPromptPreset] = useState("Modern 3-bedroom villa with solar roof and rooftop courtyard on a 30x50 ft plot.");
   const [sandboxResult, setSandboxResult] = useState<any>(null);
   const [sandboxLoading, setSandboxLoading] = useState(false);
-
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      const { innerWidth, innerHeight } = window;
-      setMousePos({
-        x: (e.clientX / innerWidth) * 2 - 1,
-        y: (e.clientY / innerHeight) * 2 - 1,
-      });
-    };
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, []);
 
   const { scrollY } = useScroll();
   const heroScale = useTransform(scrollY, [0, 600], [1, 0.98]);
@@ -78,7 +65,6 @@ export default function Home() {
 
   return (
     <main className="relative min-h-screen bg-[#040508] text-white selection:bg-sky-500/30 overflow-x-hidden font-sans">
-      <SpotlightCursor />
       <Navbar />
 
       {/* 01. HERO COMMAND CENTER SECTION */}
@@ -86,12 +72,9 @@ export default function Home() {
         style={{ scale: heroScale }}
         className="relative pt-[130px] pb-[80px] px-6 sm:px-12 lg:px-16 max-w-[1600px] mx-auto min-h-screen flex flex-col justify-between"
       >
-        {/* Dynamic Parallax Glow Background */}
+        {/* Glow Background */}
         <div
-          className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-gradient-to-tr from-sky-500/20 via-indigo-600/15 to-purple-600/10 rounded-full blur-[140px] pointer-events-none transition-transform duration-700"
-          style={{
-            transform: `translate(calc(-50% + ${mousePos.x * 25}px), calc(-50% + ${mousePos.y * 25}px))`,
-          }}
+          className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-gradient-to-tr from-sky-500/20 via-indigo-600/15 to-purple-600/10 rounded-full blur-[140px] pointer-events-none"
         />
 
         <div className="relative z-10 w-full text-center">
