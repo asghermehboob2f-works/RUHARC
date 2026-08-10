@@ -489,7 +489,7 @@ export const InteractiveWorkspace: React.FC = () => {
         <div className="flex flex-col">
           <span className="text-[10px] text-white/40 uppercase">Built-up Area</span>
           <span className="font-bold text-sky-400">
-            {dimensions.area.toLocaleString()} sq ft
+            {dimensions.area.toLocaleString("en-US")} sq ft
           </span>
         </div>
 
@@ -511,7 +511,7 @@ export const InteractiveWorkspace: React.FC = () => {
         <div className="flex flex-col">
           <span className="text-[10px] text-white/40 uppercase">Est. Budget</span>
           <span className="font-bold text-amber-400">
-            ${(dimensions.cost * 3500).toLocaleString()}
+            ${(dimensions.cost * 3500).toLocaleString("en-US")}
           </span>
         </div>
       </div>

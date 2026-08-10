@@ -138,7 +138,7 @@ export default function SingleProjectPage({ params }: { params: Promise<{ id: st
               </div>
               <div className="flex justify-between border-b border-white/5 pb-2">
                 <span>Estimated Budget:</span>
-                <span className="text-emerald-400 font-bold">${project.estimated_budget?.toLocaleString()}</span>
+                <span className="text-emerald-400 font-bold">${project.estimated_budget?.toLocaleString("en-US")}</span>
               </div>
               <div className="flex justify-between border-b border-white/5 pb-2">
                 <span>Status:</span>

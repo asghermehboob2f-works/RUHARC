@@ -91,7 +91,7 @@ export default function ProjectsPage() {
 
                 <div className="grid grid-cols-2 gap-2 text-[11px] font-mono text-white/50 border-t border-white/10 pt-3">
                   <div>Plot: <span className="text-white font-bold">{proj.plot_dimensions}</span></div>
-                  <div>Budget: <span className="text-emerald-400 font-bold">${proj.estimated_budget?.toLocaleString()}</span></div>
+                  <div>Budget: <span className="text-emerald-400 font-bold">${proj.estimated_budget?.toLocaleString("en-US")}</span></div>
                 </div>
               </div>
 

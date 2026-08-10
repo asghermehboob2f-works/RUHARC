@@ -219,7 +219,7 @@ export const TrustSection: React.FC = () => {
         {[
           {
             label: "Projects Generated",
-            val: `${counts.projects.toLocaleString()}+`,
+            val: `${counts.projects.toLocaleString("en-US")}+`,
             sub: "Worldwide architectural plans",
             icon: FolderKanban,
           },
@@ -231,7 +231,7 @@ export const TrustSection: React.FC = () => {
           },
           {
             label: "Exported Reports",
-            val: `${counts.reports.toLocaleString()}+`,
+            val: `${counts.reports.toLocaleString("en-US")}+`,
             sub: "Print-ready PDFs & DXF specs",
             icon: FileText,
           },

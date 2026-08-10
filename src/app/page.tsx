@@ -267,7 +267,7 @@ export default function Home() {
 
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-3 border-t border-white/10 text-white/80">
                 <div>Built-up: <span className="text-white font-bold">{sandboxResult.totalAreaSqFt} sq.ft</span></div>
-                <div>Budget: <span className="text-emerald-400 font-bold">${sandboxResult.estimatedCostUSD?.toLocaleString()}</span></div>
+                <div>Budget: <span className="text-emerald-400 font-bold">${sandboxResult.estimatedCostUSD?.toLocaleString("en-US")}</span></div>
                 <div>Style: <span className="text-sky-300 font-bold">{sandboxResult.architecturalStyle}</span></div>
                 <div>Rooms: <span className="text-indigo-300 font-bold">{sandboxResult.spatialProgram?.length || 4} Spaces</span></div>
               </div>
