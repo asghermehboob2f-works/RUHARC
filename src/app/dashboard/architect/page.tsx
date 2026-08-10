@@ -1,247 +1,192 @@
 "use client";
 
 import React, { useState } from "react";
-import { motion } from "framer-motion";
-import {
-  Grid,
-  Layers,
-  Sliders,
-  Sparkles,
-  Eye,
-  Lock,
-  ChevronDown,
-  RotateCcw,
-  RotateCw,
-  Share2,
-  Download,
-  ZoomIn,
-  ZoomOut,
-  Maximize2,
-  CheckCircle2,
-  Send,
-  Wand2,
-  Split,
-  Plus,
-} from "lucide-react";
+import { Wand2, Sparkles, Layers, Send, CheckCircle2, ArrowRight, RefreshCw } from "lucide-react";
+import Link from "next/link";
 
-export default function AIArchitectWorkspacePage() {
-  const [canvasMode, setCanvasMode] = useState<"blueprint" | "3d" | "wireframe" | "presentation">("blueprint");
-  const [zoomLevel, setZoomLevel] = useState(100);
-  const [compareMode, setCompareMode] = useState(false);
+export default function AIArchitectPage() {
+  const [prompt, setPrompt] = useState("");
+  const [plotDimensions, setPlotDimensions] = useState("30x50 ft");
+  const [projectType, setProjectType] = useState("Residential");
+  const [bedrooms, setBedrooms] = useState(3);
+  const [style, setStyle] = useState("Modern Minimalist");
+  const [isLoading, setIsLoading] = useState(false);
+  const [aiResult, setAiResult] = useState<any>(null);
 
-  // Active room properties
-  const [roomName, setRoomName] = useState("Master Bedroom");
-  const [width, setWidth] = useState(16);
-  const [length, setLength] = useState(18);
-  const [wallMaterial, setWallMaterial] = useState("AAC Lightweight Blocks");
-  const [floorMaterial, setFloorMaterial] = useState("Engineered Natural Oak");
+  const handleGenerate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!prompt) return;
+    setIsLoading(true);
 
-  // Layers tree state
-  const [layers, setLayers] = useState([
-    { name: "Ground Floor Layout", visible: true, locked: false },
-    { name: "First Floor Plan", visible: true, locked: false },
-    { name: "Roof & Solar Array", visible: true, locked: true },
-    { name: "Landscape & Garden", visible: true, locked: false },
-    { name: "Furniture Schedule", visible: true, locked: false },
-    { name: "Dimension Grid", visible: true, locked: true },
-  ]);
+    try {
+      const res = await fetch("/api/ai/architect", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          prompt,
+          plotDimensions,
+          projectType,
+          bedrooms,
+          style,
+        }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setAiResult(data.result);
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
-    <div className="h-[calc(100vh-140px)] flex flex-col font-mono -m-6 sm:-m-10">
-      {/* WORKSPACE SUB-TOPBAR */}
-      <div className="h-14 bg-[#090b10] border-b border-white/10 px-6 flex items-center justify-between text-xs shrink-0">
-        <div className="flex items-center gap-4">
-          <span className="font-bold text-white text-sm">Luxury Modern Villa v5.0</span>
-          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-emerald-500/20 text-emerald-300 text-[10px] font-bold">
-            <CheckCircle2 className="w-3 h-3 text-emerald-400" /> Saved & Synced
-          </div>
+    <div className="space-y-8 font-sans">
+      <div className="p-8 rounded-3xl bg-gradient-to-r from-sky-950/60 via-[#070d18] to-indigo-950/40 border border-sky-500/20">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sky-500/10 border border-sky-400/30 font-mono text-xs text-sky-400 mb-3">
+          <Sparkles className="w-3.5 h-3.5" /> RUHARC AI ENGINE v1.0
         </div>
-
-        {/* Canvas Mode Toggles */}
-        <div className="flex items-center gap-1 glass-panel p-1 rounded-xl border border-white/10">
-          {(["blueprint", "3d", "wireframe", "presentation"] as const).map((mode) => (
-            <button
-              key={mode}
-              onClick={() => setCanvasMode(mode)}
-              className={`px-3 py-1 rounded-lg text-[10px] uppercase font-bold transition-all capitalize cursor-pointer ${
-                canvasMode === mode ? "bg-sky-400 text-black shadow" : "text-white/60 hover:text-white"
-              }`}
-            >
-              {mode}
-            </button>
-          ))}
-        </div>
-
-        {/* Compare Mode & Action Tools */}
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setCompareMode(!compareMode)}
-            className={`px-3 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1.5 cursor-pointer ${
-              compareMode ? "bg-sky-500/20 border-sky-400 text-sky-300" : "bg-white/5 border-white/10 text-white/70"
-            }`}
-          >
-            <Split className="w-3.5 h-3.5" />
-            {compareMode ? "Exit Compare Mode" : "Compare Versions"}
-          </button>
-
-          <button className="px-3 py-1.5 rounded-xl bg-sky-400 text-black font-bold flex items-center gap-1 cursor-pointer">
-            <Download className="w-3.5 h-3.5" /> Export CAD
-          </button>
-        </div>
+        <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+          AI Architecture Studio
+        </h1>
+        <p className="text-sm text-white/60 font-sans mt-2 max-w-xl">
+          Transform text briefs into structured spatial floorplans, structural specifications, and material schedules.
+        </p>
       </div>
 
-      {/* 3 PANEL WORKSPACE AREA */}
-      <div className="flex-1 flex overflow-hidden relative">
-        {/* LEFT LAYERS PANEL */}
-        <div className="w-64 bg-[#07080c] border-r border-white/10 p-4 flex flex-col justify-between shrink-0">
-          <div className="space-y-4">
-            <div className="flex items-center justify-between text-xs text-sky-400 font-bold">
-              <span className="flex items-center gap-1.5">
-                <Layers className="w-4 h-4" /> LAYERS PANEL
-              </span>
-              <button className="p-1 rounded hover:bg-white/10"><Plus className="w-3.5 h-3.5" /></button>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* INPUT FORM */}
+        <form onSubmit={handleGenerate} className="p-6 rounded-3xl glass-panel border border-white/10 bg-[#08090e] space-y-4 font-mono text-xs">
+          <h3 className="text-sm font-bold text-white uppercase text-sky-400">Design Brief & Parameters</h3>
+
+          <div>
+            <label className="text-white/70 block mb-1 font-bold">Natural Language Prompt</label>
+            <textarea
+              required
+              rows={4}
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              placeholder="Design a modern 3-bedroom residence on a 30x50 ft plot with passive solar heating and high daylighting..."
+              className="w-full p-4 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:border-sky-400 focus:outline-none font-sans"
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-white/70 block mb-1 font-bold">Plot Dimensions</label>
+              <input
+                type="text"
+                value={plotDimensions}
+                onChange={(e) => setPlotDimensions(e.target.value)}
+                className="w-full h-11 px-3 rounded-xl bg-white/5 border border-white/10 text-white"
+              />
             </div>
 
-            <div className="space-y-1.5 text-xs">
-              {layers.map((layer, idx) => (
-                <div
-                  key={idx}
-                  className="p-2.5 rounded-xl bg-white/5 border border-white/10 flex items-center justify-between hover:border-sky-400/30 transition-colors"
-                >
-                  <span className="text-white/80 truncate text-[11px]">{layer.name}</span>
-                  <div className="flex items-center gap-1 text-white/40">
-                    <Eye className="w-3.5 h-3.5 hover:text-white cursor-pointer" />
-                    <Lock className="w-3.5 h-3.5 hover:text-white cursor-pointer" />
-                  </div>
-                </div>
-              ))}
+            <div>
+              <label className="text-white/70 block mb-1 font-bold">Bedrooms</label>
+              <input
+                type="number"
+                value={bedrooms}
+                onChange={(e) => setBedrooms(Number(e.target.value))}
+                className="w-full h-11 px-3 rounded-xl bg-white/5 border border-white/10 text-white"
+              />
             </div>
           </div>
-        </div>
 
-        {/* CENTER INFINITE DESIGN CANVAS */}
-        <div className="flex-1 bg-[#04060a] relative overflow-hidden flex items-center justify-center p-6">
-          {/* Blueprint Grid Overlay */}
-          <div className="absolute inset-0 bg-architectural-grid opacity-30 pointer-events-none" />
-
-          {/* Render or Blueprint Simulation View */}
-          {!compareMode ? (
-            <div
-              className="relative border-2 border-sky-400/50 rounded-2xl p-6 glass-panel transition-all duration-300 max-w-2xl w-full h-[400px] flex flex-col justify-between"
-              style={{ transform: `scale(${zoomLevel / 100})` }}
+          <div>
+            <label className="text-white/70 block mb-1 font-bold">Architectural Style</label>
+            <select
+              value={style}
+              onChange={(e) => setStyle(e.target.value)}
+              className="w-full h-11 px-3 rounded-xl bg-[#111] border border-white/10 text-white"
             >
-              {canvasMode === "3d" ? (
-                <img src="/images/villa1.png" alt="3D Villa Canvas" className="w-full h-full object-cover rounded-xl" />
-              ) : (
-                <div className="space-y-4 h-full flex flex-col justify-between">
-                  <div className="flex justify-between text-xs text-sky-300 font-bold border-b border-sky-400/30 pb-2">
-                    <span>CANVAS: GROUND FLOOR PLAN</span>
-                    <span>SCALE 1:50</span>
-                  </div>
+              <option value="Modern Minimalist">Modern Minimalist</option>
+              <option value="Scandinavian Eco">Scandinavian Eco</option>
+              <option value="Contemporary Industrial">Contemporary Industrial</option>
+              <option value="Biophilic Villa">Biophilic Villa</option>
+            </select>
+          </div>
 
-                  <div className="grid grid-cols-2 gap-4 flex-1">
-                    <div className="border border-sky-400/40 rounded-xl p-3 flex flex-col justify-between bg-sky-500/5">
-                      <span className="font-bold text-white text-xs">{roomName}</span>
-                      <span className="text-sky-300 text-xs">{width} × {length} FT ({width * length} SQ.FT)</span>
-                    </div>
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="w-full h-14 rounded-2xl bg-sky-400 text-black font-bold font-mono text-sm hover:bg-sky-300 transition-all shadow-lg flex items-center justify-center gap-2 cursor-pointer mt-4"
+          >
+            {isLoading ? (
+              <div className="flex items-center gap-2">
+                <RefreshCw className="w-4 h-4 animate-spin text-black" />
+                <span>Synthesizing Spatial Graph...</span>
+              </div>
+            ) : (
+              <>
+                <Wand2 className="w-4 h-4" />
+                <span>Generate Architectural Concept</span>
+              </>
+            )}
+          </button>
+        </form>
 
-                    <div className="border border-sky-400/40 rounded-xl p-3 flex flex-col justify-between bg-sky-500/5">
-                      <span className="font-bold text-white text-xs">OPEN KITCHEN</span>
-                      <span className="text-sky-300 text-xs">14 × 12 FT (168 SQ.FT)</span>
-                    </div>
-                  </div>
-                </div>
-              )}
+        {/* AI OUTPUT VIEW */}
+        <div className="lg:col-span-2 space-y-6">
+          {!aiResult ? (
+            <div className="h-full min-h-[400px] p-12 rounded-3xl glass-panel border border-white/10 bg-[#07080c] flex flex-col items-center justify-center text-center space-y-4 font-mono">
+              <Wand2 className="w-12 h-12 text-sky-400/40" />
+              <h3 className="text-lg font-bold text-white">AI Studio Waiting for Prompt</h3>
+              <p className="text-xs text-white/60 font-sans max-w-md">
+                Enter your project specifications and click generate to view structured spatial floor plans, room schedules, and material takeoffs.
+              </p>
             </div>
           ) : (
-            /* Split-Screen Compare Mode */
-            <div className="grid grid-cols-2 gap-4 w-full h-full p-4">
-              <div className="border border-white/20 rounded-2xl p-4 glass-panel flex flex-col justify-between">
-                <span className="text-xs text-rose-400 font-bold">PREVIOUS VERSION (v4.0)</span>
-                <div className="text-xs space-y-1 text-white/60">
-                  <div>• Living Room: 18 × 20 FT</div>
-                  <div>• Roof: Concrete Deck</div>
+            <div className="space-y-6 font-mono text-xs">
+              {/* Concept Title */}
+              <div className="p-6 rounded-3xl glass-panel border border-sky-400/30 bg-[#080b12]">
+                <div className="text-xs text-sky-400 font-bold mb-1">CONCEPT GENERATED</div>
+                <h2 className="text-2xl font-extrabold text-white mb-2">{aiResult.conceptName}</h2>
+                <p className="text-white/70 font-sans text-xs leading-relaxed">{aiResult.designBrief}</p>
+
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-4 pt-4 border-t border-white/10">
+                  <div>Style: <span className="text-white font-bold">{aiResult.architecturalStyle}</span></div>
+                  <div>Area: <span className="text-sky-300 font-bold">{aiResult.totalAreaSqFt} sq.ft</span></div>
+                  <div>Est. Budget: <span className="text-emerald-400 font-bold">${aiResult.estimatedCostUSD?.toLocaleString()}</span></div>
                 </div>
               </div>
 
-              <div className="border border-sky-400/50 rounded-2xl p-4 glass-panel flex flex-col justify-between bg-sky-500/10">
-                <span className="text-xs text-emerald-400 font-bold">CURRENT ACTIVE VERSION (v5.0)</span>
-                <div className="text-xs space-y-1 text-white">
-                  <div>✓ Living Room: 22 × 20 FT (Expanded)</div>
-                  <div>✓ Roof: Scandinavian Rooftop Garden</div>
+              {/* Spatial Program */}
+              <div className="p-6 rounded-3xl glass-panel border border-white/10 bg-[#07080c] space-y-3">
+                <h3 className="text-sm font-bold text-white text-indigo-400">Spatial Room Schedule</h3>
+                <div className="space-y-2">
+                  {aiResult.spatialProgram?.map((item: any, i: number) => (
+                    <div key={i} className="p-3 rounded-xl bg-white/5 border border-white/10 flex justify-between items-center">
+                      <div>
+                        <span className="text-white font-bold">{item.room}</span>
+                        <span className="text-white/40 text-[10px] block">{item.naturalLighting}</span>
+                      </div>
+                      <div className="text-right">
+                        <span className="text-sky-300 font-bold">{item.dimensions}</span>
+                        <span className="text-white/40 text-[10px] block">{item.areaSqFt} sq.ft</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Structural & Sustainability */}
+              <div className="p-6 rounded-3xl glass-panel border border-white/10 bg-[#07080c] space-y-3">
+                <h3 className="text-sm font-bold text-white text-emerald-400">Structural System & Sustainability</h3>
+                <div className="text-white/80 font-sans mb-3">{aiResult.structuralSystem}</div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {aiResult.sustainabilityFeatures?.map((feat: string, i: number) => (
+                    <div key={i} className="flex items-center gap-2 text-white/70">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                      <span>{feat}</span>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
           )}
-
-          {/* Zoom Controls */}
-          <div className="absolute bottom-4 right-4 flex items-center gap-2 glass-pill px-3 py-1.5 rounded-xl border border-white/10 text-xs">
-            <button onClick={() => setZoomLevel(Math.max(50, zoomLevel - 10))}><ZoomOut className="w-4 h-4 text-white/70" /></button>
-            <span className="w-12 text-center text-sky-400 font-bold">{zoomLevel}%</span>
-            <button onClick={() => setZoomLevel(Math.min(200, zoomLevel + 10))}><ZoomIn className="w-4 h-4 text-white/70" /></button>
-          </div>
-        </div>
-
-        {/* RIGHT CONTEXTUAL PROPERTIES PANEL */}
-        <div className="w-72 bg-[#07080c] border-l border-white/10 p-4 flex flex-col justify-between shrink-0 space-y-4">
-          <div className="space-y-4 text-xs">
-            <div className="text-sky-400 font-bold flex items-center gap-1.5 border-b border-white/10 pb-2">
-              <Sliders className="w-4 h-4" /> ROOM PROPERTIES
-            </div>
-
-            <div className="space-y-3">
-              <div>
-                <label className="text-white/50 block mb-1">Selected Room</label>
-                <input
-                  type="text"
-                  value={roomName}
-                  onChange={(e) => setRoomName(e.target.value)}
-                  className="w-full h-9 px-3 rounded-lg bg-white/5 border border-white/10 text-white font-bold"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <label className="text-white/50 block mb-1">Width (ft)</label>
-                  <input
-                    type="number"
-                    value={width}
-                    onChange={(e) => setWidth(Number(e.target.value))}
-                    className="w-full h-9 px-3 rounded-lg bg-white/5 border border-white/10 text-white font-bold"
-                  />
-                </div>
-                <div>
-                  <label className="text-white/50 block mb-1">Length (ft)</label>
-                  <input
-                    type="number"
-                    value={length}
-                    onChange={(e) => setLength(Number(e.target.value))}
-                    className="w-full h-9 px-3 rounded-lg bg-white/5 border border-white/10 text-white font-bold"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="text-white/50 block mb-1">Wall Specification</label>
-                <input
-                  type="text"
-                  value={wallMaterial}
-                  onChange={(e) => setWallMaterial(e.target.value)}
-                  className="w-full h-9 px-3 rounded-lg bg-white/5 border border-white/10 text-white text-[11px]"
-                />
-              </div>
-
-              <div>
-                <label className="text-white/50 block mb-1">Flooring Finish</label>
-                <input
-                  type="text"
-                  value={floorMaterial}
-                  onChange={(e) => setFloorMaterial(e.target.value)}
-                  className="w-full h-9 px-3 rounded-lg bg-white/5 border border-white/10 text-white text-[11px]"
-                />
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </div>
